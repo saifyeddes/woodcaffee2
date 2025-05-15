@@ -47,12 +47,13 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wood Kafee</title>
+    <title>Menu Wood Kafee</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome pour l'icône de la porte -->
-    <link href="https://fonts.googleapis.com/css2?family=Dancing_Script:wght@700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Playfair+Display:wght@400;600&family=Dancing_Script:wght@700&display=swap" rel="stylesheet">
     <style>
         /* Styles personnalisés pour un design élégant et professionnel */
         body {
@@ -90,6 +91,9 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
 
         header .header-content h1 {
             color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center the image */
         }
 
         header nav ul li a {
@@ -98,6 +102,11 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
 
         header nav ul li a:hover {
             color: #d4a373;
+        }
+
+        .logo-img {
+            height: 4.5rem; /* Increased size for desktop */
+            width: auto;
         }
 
         .hero-section {
@@ -121,31 +130,30 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             font-weight: bold;
             text-transform: uppercase;
             margin-bottom: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .hero-content p {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .clock {
+        .hero-content .clock {
             display: flex;
             gap: 1rem;
             font-size: 1.5rem;
             font-weight: bold;
         }
 
-        .clock div {
+        .hero-content .clock div {
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        .clock div span:first-child {
+        .hero-content .clock div span:first-child {
             font-size: 2rem;
         }
 
-        .clock div span:last-child {
+        .hero-content .clock div span:last-child {
             font-size: 1rem;
             text-transform: uppercase;
             color: #e0e0e0;
@@ -183,7 +191,7 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
         .subcategory-header {
             background: rgba(255, 255, 255, 0.15);
             color: white;
-            padding:1rem;
+            padding: 1rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
 
@@ -346,21 +354,47 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
                 font-size: 1rem;
             }
 
-            .clock {
+            .hero-content .clock {
                 font-size: 1rem;
                 gap: 0.5rem;
             }
 
-            .clock div span:first-child {
+            .hero-content .clock div span:first-child {
                 font-size: 1.5rem;
             }
 
-            .clock div span:last-child {
+            .hero-content .clock div span:last-child {
                 font-size: 0.8rem;
             }
 
             .category-card {
+                width: 100%;
+                min-height: 100px;
+                display: flex;
+                flex-direction: column;
                 margin: 0 auto;
+            }
+
+            .category-content {
+                flex-grow: 1;
+                overflow-y: auto;
+                max-height: 0 !important;
+                opacity: 0 !important;
+            }
+
+            .category-content.active {
+                max-height: 2000px !important;
+                opacity: 1 !important;
+            }
+
+            .subcategory-content {
+                max-height: 0 !important;
+                opacity: 0 !important;
+            }
+
+            .subcategory-content.active {
+                max-height: 1000px !important;
+                opacity: 1 !important;
             }
 
             .category-header h2 {
@@ -384,6 +418,10 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
                 gap: 1rem;
             }
 
+            .logo-img {
+                height: 4rem; /* Increased size for mobile */
+            }
+
             footer .grid {
                 grid-template-columns: 1fr;
                 gap: 2rem;
@@ -395,7 +433,11 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Header with Transparent Background -->
     <header class="py-6 px-4">
         <div class="header-content max-w-7xl mx-auto flex justify-between items-center">
-        <h1 class="font-['Dancing_Script'] text-4xl font-bold tracking-wide sm:text-5xl">WK</h1>                <ul class="flex gap-6 sm:flex-col sm:gap-2">
+            <h1>
+                <img src="woodcaffe.png" alt="Wood Kafee Logo" class="logo-img">
+            </h1>
+            <nav>
+                <ul class="flex gap-6 sm:flex-col sm:gap-2">
                     <li>
                         <button id="connectServerBtn" class="text-[#d4a373] hover:text-[#c68b59] transition-colors duration-300">
                             <i class="fas fa-door-open text-2xl sm:text-xl"></i>
@@ -410,22 +452,23 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="hero-section">
         <div class="hero-content">
             <p class="uppercase">Welcome to</p>
-            <h1>Wood Kafee</h1>
-            <div class="border-t border-white w-32 mx-auto my-4"></div>
-            <div class="clock">
-                <div>
-                    <span id="hours">00</span>
-                    <span>Hours</span>
+            <h1>
+                Wood Kafee
+                <div class="clock">
+                    <div>
+                        <span id="hours">00</span>
+                        <span>Hours</span>
+                    </div>
+                    <div>
+                        <span id="minutes">00</span>
+                        <span>Minutes</span>
+                    </div>
+                    <div>
+                        <span id="seconds">00</span>
+                        <span>Seconds</span>
+                    </div>
                 </div>
-                <div>
-                    <span id="minutes">00</span>
-                    <span>Minutes</span>
-                </div>
-                <div>
-                    <span id="seconds">00</span>
-                    <span>Seconds</span>
-                </div>
-            </div>
+            </h1>
         </div>
     </div>
 
@@ -461,7 +504,7 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <?php foreach ($categories as $category): ?>
                 <div class="category-card overflow-hidden">
-                    <div class="category-header p-4 cursor-pointer">
+                    <div class="category-header p-4 cursor-pointer" aria-expanded="false">
                         <h2 class="font-['Playfair_Display'] text-2xl font-bold"><?php echo htmlspecialchars($category['nom']); ?></h2>
                     </div>
                     <div class="category-content">
@@ -473,7 +516,7 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
                         foreach ($categorySousCategories as $subcategory):
                         ?>
                             <div class="subcategory">
-                                <div class="subcategory-header p-3 cursor-pointer transition-colors duration-300">
+                                <div class="subcategory-header p-3 cursor-pointer transition-colors duration-300" aria-expanded="false">
                                     <h3 class="text-xl font-bold"><?php echo htmlspecialchars($subcategory['nom']); ?></h3>
                                 </div>
                                 <div class="subcategory-content">
@@ -554,9 +597,27 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             document.getElementById('seconds').innerText = seconds;
         }
 
-        // Update clock every second
         setInterval(updateClock, 1000);
-        updateClock(); // Initial call
+        updateClock();
+
+        // Function to close all category and subcategory accordions
+        function closeAllAccordions() {
+            console.log("Closing all accordions...");
+            const isMobile = window.innerWidth <= 640;
+            if (isMobile) {
+                document.querySelectorAll('.category-content').forEach(content => {
+                    content.classList.remove('active');
+                    content.previousElementSibling.classList.remove('active');
+                    content.previousElementSibling.setAttribute('aria-expanded', 'false');
+                });
+
+                document.querySelectorAll('.subcategory-content').forEach(content => {
+                    content.classList.remove('active');
+                    content.previousElementSibling.classList.remove('active');
+                    content.previousElementSibling.setAttribute('aria-expanded', 'false');
+                });
+            }
+        }
 
         // Gestion des accordéons pour les catégories
         const categoryHeaders = document.querySelectorAll('.category-header');
@@ -570,12 +631,14 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
                     if (item !== content) {
                         item.classList.remove('active');
                         item.previousElementSibling.classList.remove('active');
+                        item.previousElementSibling.setAttribute('aria-expanded', 'false');
                     }
                 });
 
                 // Ouvrir/fermer l'accordéon cliqué
                 content.classList.toggle('active');
                 header.classList.toggle('active');
+                header.setAttribute('aria-expanded', isActive ? 'false' : 'true');
             });
         });
 
@@ -592,13 +655,29 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
                     if (item !== content) {
                         item.classList.remove('active');
                         item.previousElementSibling.classList.remove('active');
+                        item.previousElementSibling.setAttribute('aria-expanded', 'false');
                     }
                 });
 
                 // Ouvrir/fermer l'accordéon cliqué
                 content.classList.toggle('active');
                 header.classList.toggle('active');
+                header.setAttribute('aria-expanded', isActive ? 'false' : 'true');
             });
+        });
+
+        // Close all accordions on page load and window load
+        document.addEventListener('DOMContentLoaded', () => {
+            closeAllAccordions();
+        });
+
+        window.onload = () => {
+            closeAllAccordions();
+        };
+
+        // Re-check on window resize
+        window.addEventListener('resize', () => {
+            closeAllAccordions();
         });
 
         // Gestion de la modale et de la calculatrice
