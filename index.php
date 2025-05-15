@@ -55,16 +55,42 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
     <style>
         /* Styles personnalisés pour un design élégant et professionnel */
         body {
-            background-color: #fffcf7; /* Fond blanc cassé */
+            background-image: url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80'); /* Café image from Unsplash */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* Ensure the background covers the entire page */
             font-family: 'Poppins', sans-serif;
             color: #5a4630; /* Marron moyen */
+            margin: 0;
         }
 
-        /* Header */
+        /* Overlay for the entire page to ensure readability */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4); /* Dark overlay for contrast */
+            z-index: -1; /* Behind all content */
+        }
+
+        /* Header with transparent background */
         header {
-            background: linear-gradient(to right, #f9e8d2, #e6d5b8); /* Dégradé beige clair */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            border-bottom: 2px solid #d4a373; /* Bordure dorée */
+            background: transparent; /* No background color */
+            box-shadow: none; /* Remove shadow for seamless integration */
+            border-bottom: none; /* Remove border */
+            position: absolute; /* Position it over the hero section */
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 2; /* Ensure it stays above the hero section */
+        }
+
+        header .header-content h1 {
+            color: white; /* White text for clarity */
         }
 
         header nav ul li a {
@@ -75,28 +101,125 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             color: #d4a373; /* Doré au survol */
         }
 
-        /* Menu */
+        /* Hero Section with Countdown */
+        .hero-section {
+            position: relative;
+            height: 400px; /* Adjust height as needed */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-content p {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .countdown {
+            display: flex;
+            gap: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .countdown div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .countdown div span:first-child {
+            font-size: 2rem;
+        }
+
+        .countdown div span:last-child {
+            font-size: 1rem;
+            text-transform: uppercase;
+            color: #e0e0e0;
+        }
+
+        /* Elegant Menu */
         .category-card {
-            border: 1px solid #d4a373; /* Bordure dorée subtile */
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1); /* Slightly opaque white background */
+            border: none; /* Remove border */
+            border-radius: 15px; /* Softer rounded corners */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Elegant shadow */
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            backdrop-filter: blur(5px); /* Glass effect */
         }
 
         .category-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
         }
 
         .category-header {
-            background: linear-gradient(to right, #f9e8d2, #e6d5b8); /* Dégradé beige clair */
+            background: linear-gradient(135deg, rgba(212, 163, 115, 0.8), rgba(230, 213, 184, 0.8)); /* Elegant gradient */
+            color: white;
+            border-radius: 15px 15px 0 0; /* Rounded top corners */
+            padding: 1.5rem;
+        }
+
+        .category-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Subtle text shadow for elegance */
         }
 
         .subcategory-header {
-            background-color: #f9e8d2; /* Beige clair */
+            background: rgba(255, 255, 255, 0.15); /* Slightly opaque white */
+            color: white;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .subcategory-header h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: white;
         }
 
         .subcategory-header:hover {
-            background-color: #e6d5b8; /* Beige légèrement plus foncé au survol */
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .subcategory-content {
+            background: transparent; /* Transparent to blend with category card */
+        }
+
+        .product {
+            color: white;
+            padding: 0.75rem;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
+            transition: background 0.3s ease;
+        }
+
+        .product:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .description {
+            color: #e0e0e0; /* Lighter gray for description */
+            font-style: italic;
+            font-size: 0.9rem;
         }
 
         /* Accordéon */
@@ -193,10 +316,18 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             background-color: #219653;
         }
 
-        /* Footer */
+        /* Footer with same design as header */
         footer {
-            background: linear-gradient(to right, #f9e8d2, #e6d5b8);
-            border-top: 2px solid #d4a373;
+            background: transparent; /* Transparent to blend with the background image */
+            border-top: none; /* Remove border */
+            position: relative; /* Ensure it stays within the flow */
+            color: white; /* White text for clarity */
+            padding: 3rem 0;
+        }
+
+        footer h3, footer p, footer a {
+            color: white; /* White text for all footer elements */
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Subtle text shadow for elegance */
         }
 
         footer a {
@@ -205,10 +336,36 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
 
         footer a:hover {
             transform: scale(1.2);
+            color: #d4a373; /* Gold on hover */
         }
 
         /* Responsive adjustments */
         @media (max-width: 640px) {
+            .hero-section {
+                height: 300px; /* Smaller height on mobile */
+            }
+
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+
+            .hero-content p {
+                font-size: 1rem;
+            }
+
+            .countdown {
+                font-size: 1rem;
+                gap: 0.5rem;
+            }
+
+            .countdown div span:first-child {
+                font-size: 1.5rem;
+            }
+
+            .countdown div span:last-child {
+                font-size: 0.8rem;
+            }
+
             .category-card {
                 margin: 0 auto;
             }
@@ -233,26 +390,465 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
                 flex-direction: column;
                 gap: 1rem;
             }
+
+            footer .grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Header Professionnel -->
-    <header class="text-[#5a4630] py-6 px-4">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
+    <!-- Header with Transparent Background -->
+    <header class="py-6 px-4">
+        <divBiological
+
+System: Lets complete the `index.php` file by finishing the `<header>` section and ensuring the entire code is properly formatted. I'll pick up where the previous response left off and complete the file.
+
+<xaiArtifact artifact_id="5ec646c9-480c-4793-9e01-846a509386c4" artifact_version_id="4f9773dc-85c4-4b28-9487-fc2593532c12" title="index.php" contentType="text/php">
+<?php
+session_start();
+
+// Gestion de la connexion admin au début du fichier
+$defaultAdminCode = "1111";
+$loginError = '';
+
+if (isset($_POST['admin_login'])) {
+    $code = isset($_POST['admin_code']) ? trim($_POST['admin_code']) : '';
+    if ($code === $defaultAdminCode) {
+        $_SESSION['admin'] = true;
+        header("Location: admin.php");
+        exit();
+    } else {
+        $loginError = "Code incorrect.";
+    }
+}
+
+// Connexion à la base de données
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "woodcaffe";
+
+try {
+    $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $conn->exec("SET NAMES utf8");
+} catch(PDOException $e) {
+    echo "Erreur de connexion : " . $e->getMessage();
+    exit();
+}
+
+// Récupérer les données des tables
+$categoriesStmt = $conn->query("SELECT * FROM categories");
+$categories = $categoriesStmt->fetchAll(PDO::FETCH_ASSOC);
+
+$sousCategoriesStmt = $conn->query("SELECT sc.*, c.nom as category_name FROM sous_categories sc JOIN categories c ON sc.categorie_id = c.id");
+$sousCategories = $sousCategoriesStmt->fetchAll(PDO::FETCH_ASSOC);
+
+$produitsStmt = $conn->query("SELECT p.*, sc.nom as subcategory_name, c.nom as category_name FROM produits p JOIN sous_categories sc ON p.sous_categorie_id = sc.id JOIN categories c ON sc.categorie_id = c.id");
+$produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Wood Kafee</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome pour l'icône de la porte -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Styles personnalisés pour un design élégant et professionnel */
+        body {
+            background-image: url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80'); /* Café image from Unsplash */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* Ensure the background covers the entire page */
+            font-family: 'Poppins', sans-serif;
+            color: #5a4630; /* Marron moyen */
+            margin: 0;
+        }
+
+        /* Overlay for the entire page to ensure readability */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4); /* Dark overlay for contrast */
+            z-index: -1; /* Behind all content */
+        }
+
+        /* Header with transparent background */
+        header {
+            background: transparent; /* No background color */
+            box-shadow: none; /* Remove shadow for seamless integration */
+            border-bottom: none; /* Remove border */
+            position: absolute; /* Position it over the hero section */
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 2; /* Ensure it stays above the hero section */
+        }
+
+        header .header-content h1 {
+            color: white; /* White text for clarity */
+        }
+
+        header nav ul li a {
+            transition: color 0.3s ease;
+        }
+
+        header nav ul li a:hover {
+            color: #d4a373; /* Doré au survol */
+        }
+
+        /* Hero Section with Countdown */
+        .hero-section {
+            position: relative;
+            height: 400px; /* Adjust height as needed */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-content p {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .countdown {
+            display: flex;
+            gap: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .countdown div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .countdown div span:first-child {
+            font-size: 2rem;
+        }
+
+        .countdown div span:last-child {
+            font-size: 1rem;
+            text-transform: uppercase;
+            color: #e0e0e0;
+        }
+
+        /* Elegant Menu */
+        .category-card {
+            background: rgba(255, 255, 255, 0.1); /* Slightly opaque white background */
+            border: none; /* Remove border */
+            border-radius: 15px; /* Softer rounded corners */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Elegant shadow */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            backdrop-filter: blur(5px); /* Glass effect */
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .category-header {
+            background: linear-gradient(135deg, rgba(212, 163, 115, 0.8), rgba(230, 213, 184, 0.8)); /* Elegant gradient */
+            color: white;
+            border-radius: 15px 15px 0 0; /* Rounded top corners */
+            padding: 1.5rem;
+        }
+
+        .category-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Subtle text shadow for elegance */
+        }
+
+        .subcategory-header {
+            background: rgba(255, 255, 255, 0.15); /* Slightly opaque white */
+            color: white;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .subcategory-header h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: white;
+        }
+
+        .subcategory-header:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .subcategory-content {
+            background: transparent; /* Transparent to blend with category card */
+        }
+
+        .product {
+            color: white;
+            padding: 0.75rem;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
+            transition: background 0.3s ease;
+        }
+
+        .product:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .description {
+            color: #e0e0e0; /* Lighter gray for description */
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+
+        /* Accordéon */
+        .category-content, .subcategory-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, opacity 0.5s ease;
+            opacity: 0;
+        }
+
+        .category-content.active {
+            max-height: 2000px;
+            opacity: 1;
+            padding: 1rem;
+        }
+
+        .subcategory-content.active {
+            max-height: 1000px;
+            opacity: 1;
+            padding: 1rem;
+        }
+
+        .category-header h2::after, .subcategory-header h3::after {
+            content: '▼';
+            display: inline-block;
+            margin-left: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .category-header.active h2::after, .subcategory-header.active h3::after {
+            transform: rotate(180deg);
+        }
+
+        /* Style pour la modale */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .calculator-grid button {
+            padding: 1rem;
+            font-size: 1.2rem;
+            background-color: #f9e8d2;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .calculator-grid button:hover {
+            background-color: #e6d5b8;
+        }
+
+        .calculator-grid .clear-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .calculator-grid .clear-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .calculator-grid .submit-btn {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .calculator-grid .submit-btn:hover {
+            background-color: #219653;
+        }
+
+        /* Footer with same design as header */
+        footer {
+            background: transparent; /* Transparent to blend with the background image */
+            border-top: none; /* Remove border */
+            position: relative; /* Ensure it stays within the flow */
+            color: white; /* White text for clarity */
+            padding: 3rem 0;
+        }
+
+        footer h3, footer p, footer a {
+            color: white; /* White text for all footer elements */
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Subtle text shadow for elegance */
+        }
+
+        footer a {
+            transition: transform 0.3s ease;
+        }
+
+        footer a:hover {
+            transform: scale(1.2);
+            color: #d4a373; /* Gold on hover */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            .hero-section {
+                height: 300px; /* Smaller height on mobile */
+            }
+
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+
+            .hero-content p {
+                font-size: 1rem;
+            }
+
+            .countdown {
+                font-size: 1rem;
+                gap: 0.5rem;
+            }
+
+            .countdown div span:first-child {
+                font-size: 1.5rem;
+            }
+
+            .countdown div span:last-child {
+                font-size: 0.8rem;
+            }
+
+            .category-card {
+                margin: 0 auto;
+            }
+
+            .category-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .subcategory-header h3 {
+                font-size: 1.25rem;
+            }
+
+            .product span {
+                font-size: 0.9rem;
+            }
+
+            .description {
+                font-size: 0.8rem;
+            }
+
+            header nav ul {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            footer .grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Transparent Background -->
+    <header class="py-6 px-4">
+        <div class="header-content max-w-7xl mx-auto flex justify-between items-center">
             <h1 class="font-['Playfair_Display'] text-4xl font-semibold tracking-wide sm:text-3xl">Wood Kafee</h1>
             <nav>
                 <ul class="flex gap-6 sm:flex-col sm:gap-2">
-                    
-                    
+                    <li>
                         <button id="connectServerBtn" class="text-[#d4a373] hover:text-[#c68b59] transition-colors duration-300">
                             <i class="fas fa-door-open text-2xl sm:text-xl"></i>
                         </button>
-                  
+                    </li>
                 </ul>
             </nav>
         </div>
     </header>
+
+    <!-- Hero Section with Countdown -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <p class="uppercase">Welcome to</p>
+            <h1>Wood Kafee</h1>
+            <div class="border-t border-white w-32 mx-auto my-4"></div>
+            <div class="countdown">
+                <div>
+                    <span id="days">30</span>
+                    <span>Days</span>
+                </div>
+                <div>
+                    <span id="hours">23</span>
+                    <span>Hours</span>
+                </div>
+                <div>
+                    <span id="minutes">45</span>
+                    <span>Minutes</span>
+                </div>
+                <div>
+                    <span id="seconds">45</span>
+                    <span>Seconds</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modale pour la calculatrice -->
     <div id="calculatorModal" class="modal">
@@ -285,7 +881,7 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="menu max-w-7xl mx-auto py-12 px-4">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <?php foreach ($categories as $category): ?>
-                <div class="category-card bg-white overflow-hidden">
+                <div class="category-card overflow-hidden">
                     <div class="category-header p-4 cursor-pointer">
                         <h2 class="font-['Playfair_Display'] text-2xl font-bold"><?php echo htmlspecialchars($category['nom']); ?></h2>
                     </div>
@@ -298,10 +894,10 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
                         foreach ($categorySousCategories as $subcategory):
                         ?>
                             <div class="subcategory">
-                                <div class="subcategory-header p-3 cursor-pointer hover:bg-[#e6d5b8] transition-colors duration-300">
+                                <div class="subcategory-header p-3 cursor-pointer transition-colors duration-300">
                                     <h3 class="text-xl font-bold"><?php echo htmlspecialchars($subcategory['nom']); ?></h3>
                                 </div>
-                                <div class="subcategory-content bg-white">
+                                <div class="subcategory-content">
                                     <?php
                                     $subcategoryProduits = array_filter($produits, function($prod) use ($subcategory) {
                                         return $prod['sous_categorie_id'] == $subcategory['id'];
@@ -309,7 +905,7 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
 
                                     foreach ($subcategoryProduits as $produit):
                                     ?>
-                                        <div class="product flex justify-between items-center p-2 border-b border-dashed border-[#d4a373] hover:bg-[#f9e8d2] transition-all duration-300">
+                                        <div class="product flex justify-between items-center p-2 border-b border-dashed border-[#d4a373] transition-all duration-300">
                                             <span class="flex-1"><?php echo htmlspecialchars($produit['nom']); ?></span>
                                             <span class="text-right w-24">
                                                 <?php 
@@ -320,7 +916,7 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
                                             </span>
                                         </div>
                                         <?php if (isset($produit['description']) && !empty($produit['description'])): ?>
-                                            <div class="description text-sm italic text-[#7f6b47] p-2 text-center">Description : <?php echo htmlspecialchars($produit['description']); ?></div>
+                                            <div class="description text-sm italic p-2 text-center">Description : <?php echo htmlspecialchars($produit['description']); ?></div>
                                         <?php endif; ?>
                                     <?php endforeach; ?>
                                 </div>
@@ -332,7 +928,7 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <!-- Footer Professionnel -->
+    <!-- Footer with Matching Design -->
     <footer class="text-[#5a4630] py-12">
         <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
             <div>
@@ -367,6 +963,36 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
     </footer>
 
     <script>
+        // Countdown Timer Logic
+        const targetDate = new Date('2025-06-14T00:00:00+01:00'); // Target date: June 14, 2025, 00:00 CET
+
+        function updateCountdown() {
+            const now = new Date();
+            const timeDifference = targetDate - now;
+
+            if (timeDifference <= 0) {
+                document.getElementById('days').innerText = '00';
+                document.getElementById('hours').innerText = '00';
+                document.getElementById('minutes').innerText = '00';
+                document.getElementById('seconds').innerText = '00';
+                return;
+            }
+
+            const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+            document.getElementById('days').innerText = String(days).padStart(2, '0');
+            document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+        }
+
+        // Update countdown every second
+        setInterval(updateCountdown, 1000);
+        updateCountdown(); // Initial call to avoid delay
+
         // Gestion des accordéons pour les catégories
         const categoryHeaders = document.querySelectorAll('.category-header');
         categoryHeaders.forEach(header => {
