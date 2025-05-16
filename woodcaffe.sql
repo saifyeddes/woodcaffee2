@@ -261,28 +261,6 @@ INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
 ('Chikhani', 8.00, 22);
 
 
---
--- Déchargement des données de la table `produits`
---
-
-INSERT INTO `produits` (`nom`, `prix`, `sous_categorie_id`, `description`) VALUES
-('Café Express', 3.4, 1, ''),
-('Café Capucin', 3.5, 1, ''),
-('Café Aromatisé Caramel', 4.5, 2, ''),
-('Chocolat Chaud Nature', 5.0, 3, ''),
-('Milkshake Chocolat', 8.0, 4, ''),
-('Frappucino Chocolat', 7.0, 5, ''),
-('Café Glacé Nutella', 8.0, 6, ''),
-('Smoothie Fraise', 8.0, 7, ''),
-('Mojito Virgin', 6.0, 8, ''),
-('Jus Orange', 4.5, 9, ''),
-('Crêpe Chocolat', 7.0, 10, ''),
-('Pancake Chocolat', 10.0, 11, ''),
-('Jwajem Classic', 8.0, 12, ''),
-('Crêpe Salée Thon Fromage', 10.0, 13, ''),
-('Omelette Végétarienne', 8.0, 14, ''),
-('Thé Vert à la Menthe', 3.0, 15, ''),
-('Chicha Raisin', 8.0, 16, '');
 
 --
 -- Structure de la table `sous_categories`
