@@ -15,13 +15,11 @@ if (isset($_POST['admin_login'])) {
         $loginError = "Code incorrect.";
     }
 }
-
 // Connexion à la base de données
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "woodcaffe";
-
+$servername = "sql203.byethost24.com";
+$username = "b24_38999878";
+$password = "stv0kg7d";
+$dbname = "b24_38999878_woodcaffe";
 try {
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -558,11 +556,10 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
                 <p class="text-sm">Wood Kafee est votre destination pour un moment de détente avec des boissons et des plats savoureux, préparés avec soin.</p>
             </div>
             <div>
-                <h3 class="font-['Playfair_Display'] text-xl mb-4">Contact</h3>
-                <p class="text-sm">123 Rue du Café, Tunis</p>
-                <p class="text-sm">Tél : +216 12 345 678</p>
-                <p class="text-sm">Ouvert : Lun-Dim, 8h-22h</p>
-                <p class="text-sm mt-2"><a href="mailto:contact@woodkafee.com" class="hover:text-[#c68b59] transition-colors duration-300">contact@woodkafee.com</a></p>
+              <h3 class="font-['Playfair_Display'] text-xl mb-4">Contact</h3>
+                <p class="text-sm">123 Cebalat ben ammar, Ariana</p>
+                <p class="text-sm">Tél : +216 21 344 556</p>
+                <p class="text.sm">Ouvert : Lun-Dim, 6h30-00h</p>
             </div>
             <div>
                 <h3 class="font-['Playfair_Display'] text-xl mb-4">Suivez-Nous</h3>

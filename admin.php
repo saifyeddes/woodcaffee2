@@ -1,17 +1,19 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 session_start();
 
 // Vérifier si l'utilisateur est admin
-if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true) {
-    header("Location: index.php");
-    exit();
-}
-
+// if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true) {
+//     header("Location: index.php");
+//     exit();
+// }
 // Connexion à la base de données
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "woodcaffe";
+$servername = "sql203.byethost24.com";
+$username = "b24_38999878";
+$password = "stv0kg7d";
+$dbname = "b24_38999878_woodcaffe";
 
 try {
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
@@ -168,7 +170,6 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             width: 100%;
             z-index: 2;
             padding: 1rem 0;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             transition: transform 0.3s ease-in-out;
         }
 
@@ -216,10 +217,6 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
 
         /* Admin Section */
         .admin-section {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(8px);
             margin-top: 80px; /* Adjusted for fixed header */
             padding: 2rem;
         }
@@ -266,7 +263,6 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .category-header {
-            background: linear-gradient(135deg, rgba(212, 163, 115, 0.8), rgba(230, 213, 184, 0.8));
             color: white;
             border-radius: 15px 15px 0 0;
             padding: 1.5rem;
@@ -779,10 +775,10 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
             <div>
                 <h3 class="font-['Playfair_Display'] text-xl mb-4">Contact</h3>
-                <p class="text-sm">123 Rue du Café, Tunis</p>
-                <p class="text-sm">Tél : +216 12 345 678</p>
-                <p class="text.sm">Ouvert : Lun-Dim, 8h-22h</p>
-                <p class="text-sm mt-2"><a href="mailto:contact@woodkafee.com" class="hover:text-[#c68b59] transition-colors duration-300">contact@woodkafee.com</a></p>
+                <p class="text-sm">123 Cebalat ben ammar, Ariana</p>
+                <p class="text-sm">Tél : +216 21 344 556</p>
+                <p class="text.sm">Ouvert : Lun-Dim, 6h30-00h</p>
+               
             </div>
             <div>
                 <h3 class="font-['Playfair_Display'] text-xl mb-4">Suivez-Nous</h3>
