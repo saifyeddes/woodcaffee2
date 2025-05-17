@@ -26,8 +26,8 @@ Clonez ou téléchargez ce projet dans le répertoire de votre serveur local (pa
 Créez une base de données MySQL, par exemple cafe_db.
 Importez le fichier SQL contenu dans database.sql pour créer les tables nécessaires.
 Configurez la connexion à la base de données dans database.php.
-Accédez à http://localhost/nom_du_projet/ pour voir le menu utilisateur.
-Accédez à http://localhost/nom_du_projet/admin.php pour accéder à l'interface administrateur.
+Accédez à http://localhost/woodcaffee2/index.php pour voir le menu utilisateur.
+Accédez à http://localhost/woodcaffee2/admin.php pour accéder à l'interface administrateur.
 Fonctionnalités administratives
 Connexion sécurisé (mot de passe)
 Ajout, modification et suppression de catégories, sous-catégories et produits
