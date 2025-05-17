@@ -4,12 +4,16 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 session_start();
 
-// Vérifier si l'utilisateur est admin
-// if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true) {
-//     header("Location: index.php");
-//     exit();
-// }
-// Connexion à la base de données
+// Start session only if none is active
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true) {
+    header("Location: index.php");
+    exit();
+}
+
 $servername = "sql203.byethost24.com";
 $username = "b24_38999878";
 $password = "stv0kg7d";
@@ -24,14 +28,31 @@ try {
     exit();
 }
 
-// Gestion de la déconnexion
 if (isset($_POST['logout'])) {
     session_destroy();
     header("Location: index.php");
     exit();
 }
 
-// Gestion des opérations CRUD (Ajouter, Modifier, Supprimer)
+if (isset($_POST['change_password'])) {
+    $new_password = trim($_POST['new_password']);
+    if (!empty($new_password)) {
+        try {
+            $stmt = $conn->prepare("UPDATE admin SET password = ? WHERE id = 1");
+            $result = $stmt->execute([$new_password]);
+            if ($result && $stmt->rowCount() > 0) {
+                $password_change_message = "Mot de passe modifié avec succès.";
+            } else {
+                $password_change_message = "Erreur : le mot de passe n'a pas été modifié.";
+            }
+        } catch (PDOException $e) {
+            $password_change_message = "Erreur lors de la mise à jour : " . $e->getMessage();
+        }
+    } else {
+        $password_change_message = "Le mot de passe ne peut pas être vide.";
+    }
+}
+
 if (isset($_POST['add_category'])) {
     $nom = $_POST['category_name'];
     $stmt = $conn->prepare("INSERT INTO categories (nom) VALUES (?)");
@@ -115,8 +136,7 @@ if (isset($_POST['delete_product'])) {
     exit();
 }
 
-// Récupérer les données des tables
-$categoriesStmt = $conn->query("SELECT * FROM categories");
+$categoriesStmt = $conn->query("SELECT * FROM categories ORDER BY id");
 $categories = $categoriesStmt->fetchAll(PDO::FETCH_ASSOC);
 
 $sousCategoriesStmt = $conn->query("SELECT sc.*, c.nom as category_name FROM sous_categories sc JOIN categories c ON sc.categorie_id = c.id");
@@ -132,14 +152,10 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administration - Wood Kafee</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome pour les icônes -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Playfair+Display:wght@400;600&family=Dancing_Script:wght@700&display=swap" rel="stylesheet">
     <style>
-        /* Styles personnalisés pour un design élégant et professionnel */
         body {
             background-image: url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
             background-size: cover;
@@ -151,7 +167,6 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             margin: 0;
         }
 
-        /* Dark overlay for readability */
         body::before {
             content: '';
             position: fixed;
@@ -163,7 +178,6 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             z-index: -1;
         }
 
-        /* Elegant Header */
         header {
             position: fixed;
             top: 0;
@@ -215,9 +229,8 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             transform: scale(1.1);
         }
 
-        /* Admin Section */
         .admin-section {
-            margin-top: 80px; /* Adjusted for fixed header */
+            margin-top: 80px;
             padding: 2rem;
         }
 
@@ -247,7 +260,6 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             transform: translateY(-2px);
         }
 
-        /* Elegant Menu */
         .category-card {
             background: rgba(255, 255, 255, 0.1);
             border: none;
@@ -324,7 +336,6 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             font-size: 0.9rem;
         }
 
-        /* Admin Actions Icons */
         .admin-actions {
             display: flex;
             gap: 0.5rem;
@@ -356,7 +367,6 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             color: #e74c3c;
         }
 
-        /* Accordéon */
         .category-content, .subcategory-content {
             max-height: 0;
             overflow: hidden;
@@ -387,7 +397,6 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             transform: rotate(180deg);
         }
 
-        /* Style pour la modale */
         .modal {
             display: none;
             position: fixed;
@@ -432,7 +441,6 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             color: #e0e0e0;
         }
 
-        /* Buttons */
         button {
             transition: background-color 0.3s ease, transform 0.2s ease;
         }
@@ -441,7 +449,6 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             transform: translateY(-2px);
         }
 
-        /* Footer */
         footer {
             background: transparent;
             border-top: none;
@@ -464,7 +471,6 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             color: #d4a373;
         }
 
-        /* Responsive adjustments */
         @media (max-width: 640px) {
             .category-card {
                 width: 100%;
@@ -531,7 +537,7 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             }
 
             .admin-section {
-                margin-top: 60px; /* Adjusted for fixed header on mobile */
+                margin-top: 60px;
             }
 
             .admin-section .flex {
@@ -552,16 +558,19 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
     </style>
 </head>
 <body>
-    <!-- Elegant Header -->
-    <header>
+    <header id="header">
         <div class="header-content">
             <h1>
+                <img src="woodcaffe.png" alt="Wood Kafee Logo" class="logo-img">
             </h1>
             <nav>
                 <ul class="flex gap-6 sm:flex-col sm:gap-2">
-                    <li>
-                        <form method="POST">
-                            <button type="submit" name="logout" class="text-[#00000] hover:text-[#c68b59] transition-colors duration-300">
+                    <li class="flex items-center gap-3">
+                        <button class="text-white hover:text-[#c68b59] transition-colors duration-300" onclick="openModal('changePasswordModal')" title="Changer le mot de passe">
+                            <i class="fas fa-key text-2xl sm:text-xl"></i>
+                        </button>
+                        <form method="POST" style="display:inline;">
+                            <button type="submit" name="logout" class="text-white hover:text-[#c68b59] transition-colors duration-300" title="Déconnexion">
                                 <i class="fas fa-door-open text-2xl sm:text-xl"></i>
                             </button>
                         </form>
@@ -571,17 +580,20 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </header>
 
-    <!-- Interface Admin -->
     <div class="admin-section max-w-7xl mx-auto my-4">
         <h2 class="text-2xl font-bold mb-4">Gestion du Menu</h2>
-        <div class="flex gap-4">
+        <?php if (isset($password_change_message)): ?>
+            <div class="bg-<?php echo strpos($password_change_message, 'succès') !== false ? '[#27ae60]' : '[#e74c3c]' ?> text-white p-4 rounded-lg mb-4 text-center">
+                <?php echo htmlspecialchars($password_change_message); ?>
+            </div>
+        <?php endif; ?>
+        <div class="flex gap-4 flex-wrap">
             <button class="bg-[#27ae60] text-white px-4 py-2 rounded-lg hover:bg-[#219653]" onclick="openModal('addCategoryModal')">Ajouter une Catégorie</button>
             <button class="bg-[#27ae60] text-white px-4 py-2 rounded-lg hover:bg-[#219653]" onclick="openModal('addSubcategoryModal')">Ajouter une Sous-Catégorie</button>
             <button class="bg-[#27ae60] text-white px-4 py-2 rounded-lg hover:bg-[#219653]" onclick="openModal('addProductModal')">Ajouter un Produit</button>
         </div>
     </div>
 
-    <!-- Menu avec Gestion -->
     <div class="menu max-w-7xl mx-auto py-8 px-4">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <?php foreach ($categories as $category): ?>
@@ -609,54 +621,84 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
                         });
 
                         foreach ($categorySousCategories as $subcategory):
+                            // Skip subcategory header for 'Direct' under 'Boissons' (category ID 3, subcategory ID 9)
+                            if ($category['id'] == 3 && $subcategory['id'] == 9) {
+                                $subcategoryProduits = array_filter($produits, function($prod) use ($subcategory) {
+                                    return $prod['sous_categorie_id'] == $subcategory['id'];
+                                });
+                                foreach ($subcategoryProduits as $produit):
                         ?>
-                            <div class="subcategory">
-                                <div class="subcategory-header p-3 cursor-pointer transition-colors duration-300">
-                                    <h3><?php echo htmlspecialchars($subcategory['nom']); ?></h3>
-                                    <div class="admin-actions">
-                                        <button class="add-btn" onclick="openModal('addProductModal')">
-                                            <i class="fas fa-plus"></i>
-                                        </button>
-                                        <button class="edit-btn" onclick="openEditSubcategoryModal(<?php echo $subcategory['id']; ?>, '<?php echo htmlspecialchars($subcategory['nom']); ?>', <?php echo $subcategory['categorie_id']; ?>)">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="delete-btn" onclick="deleteSubcategory(<?php echo $subcategory['id']; ?>)">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                    <div class="product">
+                                        <span class="flex-1"><?php echo htmlspecialchars($produit['nom']); ?></span>
+                                        <span class="text-right w-24">
+                                            <?php 
+                                            $prix = isset($produit['prix']) ? number_format($produit['prix'], 2) : '0.00';
+                                            $devise = isset($produit['devise']) && !empty($produit['devise']) ? htmlspecialchars($produit['devise']) : 'DT';
+                                            echo $prix . ' ' . $devise;
+                                            ?>
+                                        </span>
+                                        <div class="admin-actions">
+                                            <button class="edit-btn" onclick="openEditProductModal(<?php echo $produit['id']; ?>, '<?php echo htmlspecialchars($produit['nom']); ?>', <?php echo isset($produit['prix']) ? $produit['prix'] : 0; ?>, '<?php echo htmlspecialchars($produit['description'] ?? ''); ?>', <?php echo $produit['sous_categorie_id']; ?>)">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="delete-btn" onclick="deleteProduct(<?php echo $produit['id']; ?>)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <?php if (isset($produit['description']) && !empty($produit['description'])): ?>
+                                        <div class="description text-sm italic p-2 text-center">Description : <?php echo htmlspecialchars($produit['description']); ?></div>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            <?php } else { ?>
+                                <div class="subcategory">
+                                    <div class="subcategory-header p-3 cursor-pointer transition-colors duration-300">
+                                        <h3><?php echo htmlspecialchars($subcategory['nom']); ?></h3>
+                                        <div class="admin-actions">
+                                            <button class="add-btn" onclick="openAddProductModal(<?php echo $subcategory['id']; ?>)">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                            <button class="edit-btn" onclick="openEditSubcategoryModal(<?php echo $subcategory['id']; ?>, '<?php echo htmlspecialchars($subcategory['nom']); ?>', <?php echo $subcategory['categorie_id']; ?>)">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="delete-btn" onclick="deleteSubcategory(<?php echo $subcategory['id']; ?>)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="subcategory-content">
+                                        <?php
+                                        $subcategoryProduits = array_filter($produits, function($prod) use ($subcategory) {
+                                            return $prod['sous_categorie_id'] == $subcategory['id'];
+                                        });
+
+                                        foreach ($subcategoryProduits as $produit):
+                                        ?>
+                                            <div class="product">
+                                                <span class="flex-1"><?php echo htmlspecialchars($produit['nom']); ?></span>
+                                                <span class="text-right w-24">
+                                                    <?php 
+                                                    $prix = isset($produit['prix']) ? number_format($produit['prix'], 2) : '0.00';
+                                                    $devise = isset($produit['devise']) && !empty($produit['devise']) ? htmlspecialchars($produit['devise']) : 'DT';
+                                                    echo $prix . ' ' . $devise;
+                                                    ?>
+                                                </span>
+                                                <div class="admin-actions">
+                                                    <button class="edit-btn" onclick="openEditProductModal(<?php echo $produit['id']; ?>, '<?php echo htmlspecialchars($produit['nom']); ?>', <?php echo isset($produit['prix']) ? $produit['prix'] : 0; ?>, '<?php echo htmlspecialchars($produit['description'] ?? ''); ?>', <?php echo $produit['sous_categorie_id']; ?>)">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="delete-btn" onclick="deleteProduct(<?php echo $produit['id']; ?>)">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <?php if (isset($produit['description']) && !empty($produit['description'])): ?>
+                                                <div class="description text-sm italic p-2 text-center">Description : <?php echo htmlspecialchars($produit['description']); ?></div>
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
                                     </div>
                                 </div>
-                                <div class="subcategory-content">
-                                    <?php
-                                    $subcategoryProduits = array_filter($produits, function($prod) use ($subcategory) {
-                                        return $prod['sous_categorie_id'] == $subcategory['id'];
-                                    });
-
-                                    foreach ($subcategoryProduits as $produit):
-                                    ?>
-                                        <div class="product">
-                                            <span class="flex-1"><?php echo htmlspecialchars($produit['nom']); ?></span>
-                                            <span class="text-right w-24">
-                                                <?php 
-                                                $prix = isset($produit['prix']) ? number_format($produit['prix'], 2) : '0.00';
-                                                $devise = isset($produit['devise']) && !empty($produit['devise']) ? htmlspecialchars($produit['devise']) : 'DT';
-                                                echo $prix . ' ' . $devise;
-                                                ?>
-                                            </span>
-                                            <div class="admin-actions">
-                                                <button class="edit-btn" onclick="openEditProductModal(<?php echo $produit['id']; ?>, '<?php echo htmlspecialchars($produit['nom']); ?>', <?php echo isset($produit['prix']) ? $produit['prix'] : 0; ?>, '<?php echo htmlspecialchars($produit['description'] ?? ''); ?>', <?php echo $produit['sous_categorie_id']; ?>)">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="delete-btn" onclick="deleteProduct(<?php echo $produit['id']; ?>)">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <?php if (isset($produit['description']) && !empty($produit['description'])): ?>
-                                            <div class="description text-sm italic p-2 text-center">Description : <?php echo htmlspecialchars($produit['description']); ?></div>
-                                        <?php endif; ?>
-                                    <?php endforeach; ?>
-                                </div>
-                            </div>
+                            <?php } ?>
                         <?php endforeach; ?>
                     </div>
                 </div>
@@ -664,7 +706,6 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <!-- Modales pour ajouter/modifier -->
     <div id="addCategoryModal" class="modal">
         <div class="modal-content">
             <h2 class="text-2xl mb-4">Ajouter une Catégorie</h2>
@@ -696,7 +737,11 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="modal-content">
             <h2 class="text-2xl mb-4">Ajouter une Sous-Catégorie</h2>
             <form method="POST">
-                <input type="hidden" name="category_id" id="add_subcategory_category_id">
+                <select name="category_id" id="add_subcategory_category_id" class="w-full p-2 mb-4 border border-[#d4a373] rounded-md" required>
+                    <?php foreach ($categories as $cat): ?>
+                        <option value="<?php echo $cat['id']; ?>"><?php echo htmlspecialchars($cat['nom']); ?></option>
+                    <?php endforeach; ?>
+                </select>
                 <input type="text" name="subcategory_name" class="w-full p-2 mb-4 border border-[#d4a373] rounded-md" placeholder="Nom de la sous-catégorie" required>
                 <div class="flex gap-2">
                     <button type="submit" name="add_subcategory" class="bg-[#27ae60] text-white px-4 py-2 rounded-lg hover:bg-[#219653] transition-colors duration-300">Ajouter</button>
@@ -729,7 +774,7 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="modal-content">
             <h2 class="text-2xl mb-4">Ajouter un Produit</h2>
             <form method="POST">
-                <select name="subcategory_id" class="w-full p-2 mb-4 border border-[#d4a373] rounded-md" required>
+                <select name="subcategory_id" id="add_product_subcategory_id" class="w-full p-2 mb-4 border border-[#d4a373] rounded-md" required>
                     <?php foreach ($sousCategories as $sc): ?>
                         <option value="<?php echo $sc['id']; ?>"><?php echo htmlspecialchars($sc['category_name'] . ' - ' . $sc['nom']); ?></option>
                     <?php endforeach; ?>
@@ -766,7 +811,19 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <!-- Footer -->
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-2xl mb-4">Changer le Mot de Passe</h2>
+            <form method="POST">
+                <input type="text" name="new_password" class="w-full p-2 mb-4 border border-[#d4a373] rounded-md" placeholder="Nouveau mot de passe" required>
+                <div class="flex gap-2">
+                    <button type="submit" name="change_password" class="bg-[#27ae60] text-white px-4 py-2 rounded-lg hover:bg-[#219653] transition-colors duration-300">Confirmer</button>
+                    <button type="button" class="bg-[#e74c3c] text-white px-4 py-2 rounded-lg hover:bg-[#c0392b] transition-colors duration-300" onclick="closeModal('changePasswordModal')">Fermer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <footer class="py-12">
         <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
             <div>
@@ -775,40 +832,43 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
             <div>
                 <h3 class="font-['Playfair_Display'] text-xl mb-4">Contact</h3>
-                <p class="text-sm">123 Cebalat ben ammar, Ariana</p>
+                <p class="text-sm">
+                Wood kaffee, Ariana Essoghra, Tunisia</p>
                 <p class="text-sm">Tél : +216 21 344 556</p>
-                <p class="text.sm">Ouvert : Lun-Dim, 6h30-00h</p>
-               
+                <p class="text-sm">Ouvert : Lun-Dim, 6h30-00h</p>
             </div>
             <div>
                 <h3 class="font-['Playfair_Display'] text-xl mb-4">Suivez-Nous</h3>
                 <div class="flex justify-center md:justify-start gap-6">
-                    <a href="#" class="hover:text-[#c68b59] transition-transform duration-300">
+                    <a href="https://www.facebook.com/WoodKaffee" class="hover:text-[#c68b59] transition-transform duration-300">
                         <i class="fab fa-facebook-f text-2xl"></i>
                     </a>
-                    <a href="#" class="hover:text-[#c68b59] transition-transform duration-300">
+                    <a href="https://www.instagram.com/woodkaffee/" class="hover:text-[#c68b59] transition-transform duration-300">
                         <i class="fab fa-instagram text-2xl"></i>
                     </a>
-                    <a href="#" class="hover:text-[#c68b59] transition-transform duration-300">
-                        <i class="fab fa-twitter text-2xl"></i>
-                    </a>
+                    <a href="mailto:woodkaffee2022@gmail.com" class="hover:text-[#c68b59] transition-transform duration-300">
+    <i class="fas fa-envelope text-2xl"></i>
+</a>
+
+<!-- Phone icon -->
+<a href="tel:+21621344556" class="hover:text-[#c68b59] transition-transform duration-300">
+    <i class="fas fa-phone-alt text-2xl"></i>
+</a>
                 </div>
             </div>
         </div>
         <div class="text-center mt-6 text-sm border-t border-[#d4a373] pt-4">
-            © 2025 Wood Kafee. Tous droits réservés. | <a href="#privacy" class="hover:text-[#c68b59] transition-colors duration-300">Politique de Confidentialité</a>
+            © 2025 WOOD KAFFEE. Tous droits réservés. | <a href="#privacy" class="hover:text-[#c68b59] transition-colors duration-300">Politique de Confidentialité</a>
         </div>
     </footer>
 
     <script>
-        // Gestion des accordéons pour les catégories
         const categoryHeaders = document.querySelectorAll('.category-header');
         categoryHeaders.forEach(header => {
             header.addEventListener('click', () => {
                 const content = header.nextElementSibling;
                 const isActive = content.classList.contains('active');
 
-                // Fermer tous les autres accordéons de catégorie
                 document.querySelectorAll('.category-content').forEach(item => {
                     if (item !== content) {
                         item.classList.remove('active');
@@ -816,20 +876,17 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
                     }
                 });
 
-                // Ouvrir/fermer l'accordéon cliqué
                 content.classList.toggle('active');
                 header.classList.toggle('active');
             });
         });
 
-        // Gestion des accordéons pour les sous-catégories
         const subcategoryHeaders = document.querySelectorAll('.subcategory-header');
         subcategoryHeaders.forEach(header => {
             header.addEventListener('click', () => {
                 const content = header.nextElementSibling;
                 const isActive = content.classList.contains('active');
 
-                // Fermer tous les autres accordéons de sous-catégorie dans la même catégorie
                 const parentCategory = header.closest('.category-content');
                 parentCategory.querySelectorAll('.subcategory-content').forEach(item => {
                     if (item !== content) {
@@ -838,13 +895,11 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
                     }
                 });
 
-                // Ouvrir/fermer l'accordéon cliqué
                 content.classList.toggle('active');
                 header.classList.toggle('active');
             });
         });
 
-        // Fonctions pour gérer les modales d'ajout/modification
         function openModal(modalId) {
             document.getElementById(modalId).style.display = 'flex';
         }
@@ -856,6 +911,11 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
         function openAddSubcategoryModal(categoryId) {
             document.getElementById('add_subcategory_category_id').value = categoryId;
             openModal('addSubcategoryModal');
+        }
+
+        function openAddProductModal(subcategoryId) {
+            document.getElementById('add_product_subcategory_id').value = subcategoryId;
+            openModal('addProductModal');
         }
 
         function openEditCategoryModal(id, name) {
@@ -940,7 +1000,6 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             }
         }
 
-        // Close modals when clicking outside
         document.querySelectorAll('.modal').forEach(modal => {
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
@@ -949,7 +1008,6 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             });
         });
 
-        // Scroll direction detection to hide/show header
         let lastScrollTop = 0;
         const header = document.getElementById('header');
 
@@ -957,13 +1015,11 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
             if (scrollTop > lastScrollTop) {
-                // Scrolling down - hide the header
                 header.classList.add('hidden');
             } else {
-                // Scrolling up - show the header
                 header.classList.remove('hidden');
             }
-            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // Prevent negative scroll values
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
         });
     </script>
 </body>

@@ -1,25 +1,44 @@
 <?php
 session_start();
 
-// Gestion de la connexion admin au début du fichier
-$defaultAdminCode = "1111";
-$loginError = '';
-
-if (isset($_POST['admin_login'])) {
-    $code = isset($_POST['admin_code']) ? trim($_POST['admin_code']) : '';
-    if ($code === $defaultAdminCode) {
-        $_SESSION['admin'] = true;
-        header("Location: admin.php");
-        exit();
-    } else {
-        $loginError = "Code incorrect.";
-    }
-}
-// Connexion à la base de données
+// Database connection variables
 $servername = "sql203.byethost24.com";
 $username = "b24_38999878";
 $password = "stv0kg7d";
 $dbname = "b24_38999878_woodcaffe";
+
+// Gestion de la connexion admin
+$loginError = '';
+
+if (isset($_POST['admin_login'])) {
+    $code = isset($_POST['admin_code']) ? trim($_POST['admin_code']) : '';
+    try {
+        $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $conn->exec("SET NAMES utf8");
+        
+        // Vérifier le mot de passe
+        $stmt = $conn->prepare("SELECT password FROM admin WHERE id = 1");
+        $stmt->execute();
+        $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Debugging: Log input and database password (remove in production)
+        error_log("Input code: '$code', DB password: '" . ($admin['password'] ?? 'not found') . "'");
+
+        if ($admin && $code === $admin['password']) {
+            $_SESSION['admin'] = true;
+            header("Location: admin.php");
+            exit();
+        } else {
+            $loginError = $admin ? "Code incorrect." : "Administrateur non trouvé.";
+        }
+    } catch(PDOException $e) {
+        $loginError = "Erreur de connexion : " . $e->getMessage();
+        error_log("Database error: " . $e->getMessage());
+    }
+}
+
+// Connexion à la base de données pour le menu
 try {
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -30,7 +49,7 @@ try {
 }
 
 // Récupérer les données des tables
-$categoriesStmt = $conn->query("SELECT * FROM categories");
+$categoriesStmt = $conn->query("SELECT * FROM categories ORDER BY id");
 $categories = $categoriesStmt->fetchAll(PDO::FETCH_ASSOC);
 
 $sousCategoriesStmt = $conn->query("SELECT sc.*, c.nom as category_name FROM sous_categories sc JOIN categories c ON sc.categorie_id = c.id");
@@ -46,14 +65,10 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu Wood Kafee</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Playfair+Display:wght@400;600&family=Dancing_Script:wght@700&display=swap" rel="stylesheet">
     <style>
-        /* Styles personnalisés pour un design élégant et professionnel */
         body {
             background-image: url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
             background-size: cover;
@@ -91,7 +106,7 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             color: white;
             display: flex;
             align-items: center;
-            justify-content: center; /* Center the image */
+            justify-content: center;
         }
 
         header nav ul li a {
@@ -103,7 +118,7 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .logo-img {
-            height: 4.5rem; /* Increased size for desktop */
+            height: 4.5rem;
             width: auto;
         }
 
@@ -417,7 +432,7 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             }
 
             .logo-img {
-                height: 4rem; /* Increased size for mobile */
+                height: 4rem;
             }
 
             footer .grid {
@@ -428,7 +443,6 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
     </style>
 </head>
 <body>
-    <!-- Header with Transparent Background -->
     <header class="py-6 px-4">
         <div class="header-content max-w-7xl mx-auto flex justify-between items-center">
             <h1>
@@ -446,7 +460,6 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </header>
 
-    <!-- Hero Section with Clock -->
     <div class="hero-section">
         <div class="hero-content">
             <p class="uppercase">Welcome to</p>
@@ -470,14 +483,13 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <!-- Modale pour la calculatrice -->
     <div id="calculatorModal" class="modal">
         <div class="modal-content">
             <h2 class="font-['Playfair_Display'] text-2xl mb-4 text-[#5a4630]">Entrez le Mot de Passe</h2>
             <form id="loginForm" method="POST" action="">
-                <input id="passwordInput" name="admin_code" type="text" class="w-full p-2 mb-4 border border-[#d4a373] rounded-md text-center text-lg" readonly placeholder="****">
-                <div id="errorMessage" class="text-red-500 mb-4 <?php echo isset($loginError) ? '' : 'hidden'; ?>">
-                    <?php echo isset($loginError) ? $loginError : 'Mot de passe incorrect !'; ?>
+                <input id="passwordInput" name="admin_code" type="password" class="w-full p-2 mb-4 border border-[#d4a373] rounded-md text-center text-lg" placeholder="Entrez le code" required>
+                <div id="errorMessage" class="text-red-500 mb-4 <?php echo $loginError ? '' : 'hidden'; ?>">
+                    <?php echo $loginError ?: 'Mot de passe incorrect !'; ?>
                 </div>
                 <div class="calculator-grid">
                     <button type="button" onclick="appendNumber('1')">1</button>
@@ -491,13 +503,12 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
                     <button type="button" onclick="appendNumber('9')">9</button>
                     <button type="button" onclick="appendNumber('0')">0</button>
                     <button type="button" class="clear-btn" onclick="clearPassword()">Effacer</button>
-                    <button type="submit" name="admin_login" class="submit-btn" onclick="submitForm()">Valider</button>
+                    <button type="submit" name="admin_login" class="submit-btn">Valider</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Menu -->
     <div class="menu max-w-7xl mx-auto py-12 px-4">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <?php foreach ($categories as $category): ?>
@@ -512,35 +523,57 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
                         });
 
                         foreach ($categorySousCategories as $subcategory):
+                            // Skip subcategory header for 'Direct' under 'Boissons' (category ID 3, subcategory ID 9)
+                            if ($category['id'] == 3 && $subcategory['id'] == 9) {
+                                $subcategoryProduits = array_filter($produits, function($prod) use ($subcategory) {
+                                    return $prod['sous_categorie_id'] == $subcategory['id'];
+                                });
+                                foreach ($subcategoryProduits as $produit):
                         ?>
-                            <div class="subcategory">
-                                <div class="subcategory-header p-3 cursor-pointer transition-colors duration-300" aria-expanded="false">
-                                    <h3 class="text-xl font-bold"><?php echo htmlspecialchars($subcategory['nom']); ?></h3>
-                                </div>
-                                <div class="subcategory-content">
-                                    <?php
-                                    $subcategoryProduits = array_filter($produits, function($prod) use ($subcategory) {
-                                        return $prod['sous_categorie_id'] == $subcategory['id'];
-                                    });
+                                    <div class="product flex justify-between items-center p-2 border-b border-dashed border-[#d4a373] transition-all duration-300">
+                                        <span class="flex-1"><?php echo htmlspecialchars($produit['nom']); ?></span>
+                                        <span class="text-right w-24">
+                                            <?php 
+                                            $prix = isset($produit['prix']) ? number_format($produit['prix'], 2) : '0.00';
+                                            $devise = isset($produit['devise']) && !empty($produit['devise']) ? htmlspecialchars($produit['devise']) : 'DT';
+                                            echo $prix . ' ' . $devise;
+                                            ?>
+                                        </span>
+                                    </div>
+                                    <?php if (isset($produit['description']) && !empty($produit['description'])): ?>
+                                        <div class="description text-sm italic p-2 text-center">Description : <?php echo htmlspecialchars($produit['description']); ?></div>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            <?php } else { ?>
+                                <div class="subcategory">
+                                    <div class="subcategory-header p-3 cursor-pointer transition-colors duration-300" aria-expanded="false">
+                                        <h3 class="text-xl font-bold"><?php echo htmlspecialchars($subcategory['nom']); ?></h3>
+                                    </div>
+                                    <div class="subcategory-content">
+                                        <?php
+                                        $subcategoryProduits = array_filter($produits, function($prod) use ($subcategory) {
+                                            return $prod['sous_categorie_id'] == $subcategory['id'];
+                                        });
 
-                                    foreach ($subcategoryProduits as $produit):
-                                    ?>
-                                        <div class="product flex justify-between items-center p-2 border-b border-dashed border-[#d4a373] transition-all duration-300">
-                                            <span class="flex-1"><?php echo htmlspecialchars($produit['nom']); ?></span>
-                                            <span class="text-right w-24">
-                                                <?php 
-                                                $prix = isset($produit['prix']) ? number_format($produit['prix'], 2) : '0.00';
-                                                $devise = isset($produit['devise']) && !empty($produit['devise']) ? htmlspecialchars($produit['devise']) : 'DT';
-                                                echo $prix . ' ' . $devise;
-                                                ?>
-                                            </span>
-                                        </div>
-                                        <?php if (isset($produit['description']) && !empty($produit['description'])): ?>
-                                            <div class="description text-sm italic p-2 text-center">Description : <?php echo htmlspecialchars($produit['description']); ?></div>
-                                        <?php endif; ?>
-                                    <?php endforeach; ?>
+                                        foreach ($subcategoryProduits as $produit):
+                                        ?>
+                                            <div class="product flex justify-between items-center p-2 border-b border-dashed border-[#d4a373] transition-all duration-300">
+                                                <span class="flex-1"><?php echo htmlspecialchars($produit['nom']); ?></span>
+                                                <span class="text-right w-24">
+                                                    <?php 
+                                                    $prix = isset($produit['prix']) ? number_format($produit['prix'], 2) : '0.00';
+                                                    $devise = isset($produit['devise']) && !empty($produit['devise']) ? htmlspecialchars($produit['devise']) : 'DT';
+                                                    echo $prix . ' ' . $devise;
+                                                    ?>
+                                                </span>
+                                            </div>
+                                            <?php if (isset($produit['description']) && !empty($produit['description'])): ?>
+                                                <div class="description text-sm italic p-2 text-center">Description : <?php echo htmlspecialchars($produit['description']); ?></div>
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
+                                    </div>
                                 </div>
-                            </div>
+                            <?php } ?>
                         <?php endforeach; ?>
                     </div>
                 </div>
@@ -548,7 +581,6 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <!-- Footer with Matching Design -->
     <footer class="py-12">
         <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
             <div>
@@ -556,33 +588,38 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
                 <p class="text-sm">Wood Kafee est votre destination pour un moment de détente avec des boissons et des plats savoureux, préparés avec soin.</p>
             </div>
             <div>
-              <h3 class="font-['Playfair_Display'] text-xl mb-4">Contact</h3>
-                <p class="text-sm">123 Cebalat ben ammar, Ariana</p>
+                <h3 class="font-['Playfair_Display'] text-xl mb-4">Contact</h3>
+                <p class="text-sm">
+                Wood kaffee, Ariana Essoghra, Tunisia</p>
                 <p class="text-sm">Tél : +216 21 344 556</p>
-                <p class="text.sm">Ouvert : Lun-Dim, 6h30-00h</p>
+                <p class="text-sm">Ouvert : Lun-Dim, 6h30-00h</p>
             </div>
             <div>
                 <h3 class="font-['Playfair_Display'] text-xl mb-4">Suivez-Nous</h3>
                 <div class="flex justify-center md:justify-start gap-6">
-                    <a href="#" class="hover:text-[#c68b59] transition-transform duration-300">
+                    <a href="https://www.facebook.com/WoodKaffee" class="hover:text-[#c68b59] transition-transform duration-300">
                         <i class="fab fa-facebook-f text-2xl"></i>
                     </a>
-                    <a href="#" class="hover:text-[#c68b59] transition-transform duration-300">
+                    <a href="https://www.instagram.com/woodkaffee/" class="hover:text-[#c68b59] transition-transform duration-300">
                         <i class="fab fa-instagram text-2xl"></i>
                     </a>
-                    <a href="#" class="hover:text-[#c68b59] transition-transform duration-300">
-                        <i class="fab fa-twitter text-2xl"></i>
-                    </a>
+                    <a href="mailto:woodkaffee2022@gmail.com" class="hover:text-[#c68b59] transition-transform duration-300">
+    <i class="fas fa-envelope text-2xl"></i>
+</a>
+
+<!-- Phone icon -->
+<a href="tel:+21621344556" class="hover:text-[#c68b59] transition-transform duration-300">
+    <i class="fas fa-phone-alt text-2xl"></i>
+</a>
                 </div>
             </div>
         </div>
         <div class="text-center mt-6 text-sm border-t border-[#d4a373] pt-4">
-            © 2025 Wood Kafee. Tous droits réservés. | <a href="#privacy" class="hover:text-[#c68b59] transition-colors duration-300">Politique de Confidentialité</a>
+            © 2025 WOOD KAFFEE. Tous droits réservés. | <a href="#privacy" class="hover:text-[#c68b59] transition-colors duration-300">Politique de Confidentialité</a>
         </div>
     </footer>
 
     <script>
-        // Clock Logic
         function updateClock() {
             const now = new Date();
             const hours = String(now.getHours()).padStart(2, '0');
@@ -597,9 +634,7 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
         setInterval(updateClock, 1000);
         updateClock();
 
-        // Function to close all category and subcategory accordions
         function closeAllAccordions() {
-            console.log("Closing all accordions...");
             const isMobile = window.innerWidth <= 640;
             if (isMobile) {
                 document.querySelectorAll('.category-content').forEach(content => {
@@ -616,14 +651,12 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             }
         }
 
-        // Gestion des accordéons pour les catégories
         const categoryHeaders = document.querySelectorAll('.category-header');
         categoryHeaders.forEach(header => {
             header.addEventListener('click', () => {
                 const content = header.nextElementSibling;
                 const isActive = content.classList.contains('active');
 
-                // Fermer tous les autres accordéons de catégorie
                 document.querySelectorAll('.category-content').forEach(item => {
                     if (item !== content) {
                         item.classList.remove('active');
@@ -632,21 +665,18 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
                     }
                 });
 
-                // Ouvrir/fermer l'accordéon cliqué
                 content.classList.toggle('active');
                 header.classList.toggle('active');
                 header.setAttribute('aria-expanded', isActive ? 'false' : 'true');
             });
         });
 
-        // Gestion des accordéons pour les sous-catégories
         const subcategoryHeaders = document.querySelectorAll('.subcategory-header');
         subcategoryHeaders.forEach(header => {
             header.addEventListener('click', () => {
                 const content = header.nextElementSibling;
                 const isActive = content.classList.contains('active');
 
-                // Fermer tous les autres accordéons de sous-catégorie dans la même catégorie
                 const parentCategory = header.closest('.category-content');
                 parentCategory.querySelectorAll('.subcategory-content').forEach(item => {
                     if (item !== content) {
@@ -656,14 +686,12 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
                     }
                 });
 
-                // Ouvrir/fermer l'accordéon cliqué
                 content.classList.toggle('active');
                 header.classList.toggle('active');
                 header.setAttribute('aria-expanded', isActive ? 'false' : 'true');
             });
         });
 
-        // Close all accordions on page load and window load
         document.addEventListener('DOMContentLoaded', () => {
             closeAllAccordions();
         });
@@ -672,12 +700,10 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             closeAllAccordions();
         };
 
-        // Re-check on window resize
         window.addEventListener('resize', () => {
             closeAllAccordions();
         });
 
-        // Gestion de la modale et de la calculatrice
         const connectServerBtn = document.getElementById('connectServerBtn');
         const calculatorModal = document.getElementById('calculatorModal');
         const passwordInput = document.getElementById('passwordInput');
@@ -700,7 +726,7 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
         function appendNumber(number) {
             if (password.length < 4) {
                 password += number;
-                passwordInput.value = '*'.repeat(password.length);
+                passwordInput.value = password;
             }
         }
 
@@ -708,11 +734,6 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             password = '';
             passwordInput.value = '';
             errorMessage.classList.add('hidden');
-        }
-
-        function submitForm() {
-            document.getElementById('passwordInput').value = password;
-            document.getElementById('loginForm').submit();
         }
     </script>
 </body>

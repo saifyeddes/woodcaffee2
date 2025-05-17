@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : jeu. 15 mai 2025 à 02:06
+-- Généré le : sam. 17 mai 2025 à 00:38
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -27,7 +27,20 @@ SET time_zone = "+00:00";
 DROP TABLE IF EXISTS produits;
 DROP TABLE IF EXISTS sous_categories;
 DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS admin;
 
+-- Table des admin
+CREATE TABLE `admin` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `password` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `admin`
+--
+INSERT INTO `admin` (`id`, `password`) VALUES
+(1, '1111');
 
 -- Table des catégories
 CREATE TABLE `categories` (
@@ -38,17 +51,16 @@ CREATE TABLE `categories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Déchargement des données de la table `categories`
+-- Déchargement des données de la table `categories` (in desired order)
 --
-
 INSERT INTO `categories` (`id`, `nom`, `description`) VALUES
 (1, 'Petit Dej', 'Petit déjeuner et brunch'),
 (2, 'Boissons Chaudes', 'Cafés, thés, chocolats chauds'),
-(3, 'Boissons Froides', 'Milkshakes, frappuccino, smoothies, jus, etc.'),
-(4, 'Boissons Wood Kaffee', 'Smoothies, Mojitos, Jus'),
-(5, 'Sucrés', 'Desserts'),
-(6, 'Salés', 'Plats salés'),
-(7, 'Boissons', 'Autres boissons, thé, chicha');
+(3, 'Boissons', 'Eau, sodas, thés, chicha'),
+(4, 'Boissons Froides', 'Milkshakes, frappuccino, smoothies, jus, etc.'),
+(5, 'Boissons Wood Kaffee', 'Smoothies, Mojitos, Jus'),
+(6, 'Sucrés', 'Desserts'),
+(7, 'Salés', 'Plats salés');
 
 -- Table des sous-catégories
 CREATE TABLE `sous_categories` (
@@ -72,28 +84,24 @@ INSERT INTO `sous_categories` (`id`, `nom`, `categorie_id`) VALUES
 (6, 'Café', 2),
 (7, 'Café Aromatisée', 2),
 (8, 'Chocolat Chaud', 2),
--- Boissons Froides
-(9, 'Milkshakes', 3),
-(10, 'Frappuccino', 3),
-(11, 'Café Glacé', 3),
--- Boissons Wood Kaffee
-(12, 'Smoothies', 4),
-(13, 'Mojito', 4),
-(14, 'Jus', 4),
--- Sucrés
-(15, 'Crêpes', 5),
-(16, 'Pancakes', 5),
-(17, 'Jwajem', 5),
--- Salés
-(18, 'Crêpes Salées', 6),
-(19, 'Omelettes', 6),
 -- Boissons
-(20, 'Autres Boissons', 7),
-(21, 'Thé', 7),
-(22, 'Chicha', 7);
-
-
-
+(9, 'Direct', 3), -- New subcategory for direct products
+(10, 'Chicha', 3), -- Renamed from ID 22 to maintain order
+-- Boissons Froides
+(11, 'Milkshakes', 4),
+(12, 'Frappuccino', 4),
+(13, 'Café Glacé', 4),
+-- Boissons Wood Kaffee
+(14, 'Smoothies', 5),
+(15, 'Mojito', 5),
+(16, 'Jus', 5),
+-- Sucrés
+(17, 'Crêpes', 6),
+(18, 'Pancakes', 6),
+(19, 'Jwajem', 6),
+-- Salés
+(20, 'Crêpes Salées', 7),
+(21, 'Omelettes', 7);
 
 --
 -- Structure de la table `produits`
@@ -142,142 +150,137 @@ INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
 ('Chocolat Chaud Nature', 5.00, 8),
 ('Chocolat Chaud À la Crème', 7.00, 8);
 
--- Boissons Froides > Milkshakes
+-- Boissons > Direct (previously Autres Boissons and Thé)
 INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
-('Chocolat', 9.00, 9),
-('Nutella', 8.00, 9),
-('Oreo', 9.00, 9),
-('Strawberry Oreo', 9.00, 9),
-('Snickers', 9.00, 9),
-('Kinder', 8.00, 9),
-('Vanille', 8.00, 9);
-
--- Boissons Froides > Frappuccino
-INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
-('Chocolat', 7.00, 10),
-('Nutella', 8.00, 10),
-('Oreo', 7.00, 10),
-('Vanille', 6.50, 10),
-('Caramel', 6.50, 10),
-('Noisette', 6.50, 10);
-
--- Boissons Froides > Café Glacé
-INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
-('Nutella', 8.00, 11),
-('Chocolat', 6.00, 11),
-('Caramel', 5.50, 11),
-('Oreo', 5.50, 11),
-('Noisette', 5.50, 11);
-
--- Boissons Wood Kaffee > Smoothies
-INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
-('Fraise', 8.00, 12),
-('Banane', 8.00, 12),
-('Nutella', 8.00, 12),
-('Pina Colada', 9.00, 12),
-('Blueberry', 9.50, 12);
-
--- Boissons Wood Kaffee > Mojito
-INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
-('Virgin', 6.00, 13),
-('Bleu', 7.50, 13),
-('Black', 8.00, 13),
-('Red', 7.50, 13),
-('Pina Colada', 8.00, 13),
-('Energétique', 10.00, 13);
-
--- Boissons Wood Kaffee > Jus
-INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
-('Orange', 4.50, 14),
-('Citronnade', 4.50, 14),
-('Lait de Poule', 6.00, 14),
-('Fraise', 7.00, 14),
-('Duo Saison', 8.00, 14),
-('Trio Saison', 9.50, 14),
-('Spotif', 12.00, 14);
-
--- Sucrés > Crêpes
-INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
-('Chocolat', 7.00, 15),
-('Nutella', 9.00, 15),
-('Chocolat Oreo', 9.00, 15),
-('Chocolat Fruits Secs', 10.00, 15),
-('Chocolat Banane', 9.00, 15),
-('Nutella Fruits Secs', 12.00, 15),
-('Nutella Banane', 11.00, 15);
-
--- Sucrés > Pancakes
-INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
-('Chocolat', 10.00, 16),
-('Nutella', 12.00, 16),
-('Chocolat Oreo', 12.00, 16),
-('Chocolat Fruits Secs', 13.00, 16),
-('Chocolat Banane', 12.00, 16),
-('Nutella Fruits Secs', 13.00, 16),
-('Nutella Banane', 13.00, 16);
-
--- Sucrés > Jwajem
-INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
-('Classic', 8.00, 17),
-('Big', 12.00, 17),
-('Wood', 18.00, 17);
-
--- Salés > Crêpes Salées
-INSERT INTO produits (nom, prix, sous_categorie_id, description) VALUES
-('Thon Fromage', 10.00, 18, NULL),
-('Jambon Fromage', 8.50, 18, NULL),
-('Poulet Fromage', 13.00, 18, NULL),
-('Wood', 14.00, 18, 'Thon, Jambon, Fromage, Œuf');
-
--- Salés > Omelettes
-INSERT INTO produits (nom, prix, sous_categorie_id, description) VALUES
-('Végétarienne', 8.00, 19, NULL),
-('Thon Fromage', 10.00, 19, NULL),
-('Jambon Fromage', 8.50, 19, NULL),
-('Poulet Fromage', 13.00, 19, NULL),
-('Wood', 14.00, 19, 'Thon, Jambon, Fromage');
-
--- Boissons > Autres Boissons
-INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
-('Eau 0,5 L', 2.00, 20),
-('Eau 1 L', 2.50, 20),
-('Soda', 3.50, 20),
-('Soda Énergétique', 7.00, 20);
-
--- Boissons > Thé
-INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
-('Thé Vert à la Menthe', 3.00, 21),
-('Thé Vert', 3.00, 21),
-('Thé Infusion', 3.00, 21),
-('Thé aux Amandes', 6.00, 21);
+('Eau 0,5 L', 2.00, 9),
+('Eau 1 L', 2.50, 9),
+('Soda', 3.50, 9),
+('Soda Énergétique', 7.00, 9),
+('Thé Vert à la Menthe', 3.00, 9),
+('Thé Vert', 3.00, 9),
+('Thé Infusion', 3.00, 9),
+('Thé aux Amandes', 6.00, 9);
 
 -- Boissons > Chicha
 INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
-('Menthe', 8.00, 22),
-('Raisin', 8.00, 22),
-('Pomme', 8.00, 22),
-('Cocktail Love', 8.00, 22),
-('Gumgum', 8.00, 22),
-('Chikhani', 8.00, 22);
+('Menthe', 8.00, 10),
+('Raisin', 8.00, 10),
+('Pomme', 8.00, 10),
+('Cocktail Love', 8.00, 10),
+('Gumgum', 8.00, 10),
+('Chikhani', 8.00, 10);
 
+-- Boissons Froides > Milkshakes
+INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
+('Chocolat', 9.00, 11),
+('Nutella', 8.00, 11),
+('Oreo', 9.00, 11),
+('Strawberry Oreo', 9.00, 11),
+('Snickers', 9.00, 11),
+('Kinder', 8.00, 11),
+('Vanille', 8.00, 11);
 
+-- Boissons Froides > Frappuccino
+INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
+('Chocolat', 7.00, 12),
+('Nutella', 8.00, 12),
+('Oreo', 7.00, 12),
+('Vanille', 6.50, 12),
+('Caramel', 6.50, 12),
+('Noisette', 6.50, 12);
 
---
--- Structure de la table `sous_categories`
---
+-- Boissons Froides > Café Glacé
+INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
+('Nutella', 8.00, 13),
+('Chocolat', 6.00, 13),
+('Caramel', 5.50, 13),
+('Oreo', 5.50, 13),
+('Noisette', 5.50, 13);
 
-CREATE TABLE `sous_categories` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `nom` varchar(255) NOT NULL,
-  `categorie_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `categorie_id` (`categorie_id`),
-  CONSTRAINT `fk_souscat_cat` FOREIGN KEY (`categorie_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci; -- Table des sous-catégories
+-- Boissons Wood Kaffee > Smoothies
+INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
+('Fraise', 8.00, 14),
+('Banane', 8.00, 14),
+('Nutella', 8.00, 14),
+('Pina Colada', 9.00, 14),
+('Blueberry', 9.50, 14);
+
+-- Boissons Wood Kaffee > Mojito
+INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
+('Virgin', 6.00, 15),
+('Bleu', 7.50, 15),
+('Black', 8.00, 15),
+('Red', 7.50, 15),
+('Pina Colada', 8.00, 15),
+('Energétique', 10.00, 15);
+
+-- Boissons Wood Kaffee > Jus
+INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
+('Orange', 4.50, 16),
+('Citronnade', 4.50, 16),
+('Lait de Poule', 6.00, 16),
+('Fraise', 7.00, 16),
+('Duo Saison', 8.00, 16),
+('Trio Saison', 9.50, 16),
+('Spotif', 12.00, 16);
+
+-- Sucrés > Crêpes
+INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
+('Chocolat', 7.00, 17),
+('Nutella', 9.00, 17),
+('Chocolat Oreo', 9.00, 17),
+('Chocolat Fruits Secs', 10.00, 17),
+('Chocolat Banane', 9.00, 17),
+('Nutella Fruits Secs', 12.00, 17),
+('Nutella Banane', 11.00, 17);
+
+-- Sucrés > Pancakes
+INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
+('Chocolat', 10.00, 18),
+('Nutella', 12.00, 18),
+('Chocolat Oreo', 12.00, 18),
+('Chocolat Fruits Secs', 13.00, 18),
+('Chocolat Banane', 12.00, 18),
+('Nutella Fruits Secs', 13.00, 18),
+('Nutella Banane', 13.00, 18);
+
+-- Sucrés > Pancakes (ID 18)
+INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
+('Chocolat Fruits Secs', 13.00, 18),
+('Chocolat Banane', 12.00, 18),
+('Nutella Fruits Secs', 13.00, 18),
+('Nutella Banane', 13.00, 18);
+
+-- Sucrés > Jwajem (ID 19)
+INSERT INTO produits (nom, prix, sous_categorie_id) VALUES
+('Classic', 8.00, 19),
+('Big', 12.00, 19),
+('Wood', 18.00, 19);
+
+-- Salés > Crêpes Salées
+INSERT INTO produits (nom, prix, sous_categorie_id, description) VALUES
+('Thon Fromage', 10.00, 20, NULL),
+('Jambon Fromage', 8.50, 20, NULL),
+('Poulet Fromage', 13.00, 20, NULL),
+('Wood', 14.00, 20, 'Thon, Jambon, Fromage, Œuf');
+
+-- Salés > Omelettes
+INSERT INTO produits (nom, prix, sous_categorie_id, description) VALUES
+('Végétarienne', 8.00, 21, NULL),
+('Thon Fromage', 10.00, 21, NULL),
+('Jambon Fromage', 8.50, 21, NULL),
+('Poulet Fromage', 13.00, 21, NULL),
+('Wood', 14.00, 21, 'Thon, Jambon, Fromage');
 
 --
 -- Index pour les tables déchargées
 --
+
+--
+-- Index pour la table `admin`
+--
+ALTER TABLE `admin`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Index pour la table `categories`
@@ -290,17 +293,29 @@ ALTER TABLE `categories`
 --
 ALTER TABLE `produits`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `categorie_id` (`categorie_id`);
+  ADD KEY `sous_categorie_id` (`sous_categorie_id`);
 
 --
 -- AUTO_INCREMENT pour les tables déchargées
 --
 
 --
+-- AUTO_INCREMENT pour la table `admin`
+--
+ALTER TABLE `admin`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT pour la table `categories`
 --
 ALTER TABLE `categories`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT pour la table `sous_categories`
+--
+ALTER TABLE `sous_categories`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT pour la table `produits`
@@ -313,10 +328,16 @@ ALTER TABLE `produits`
 --
 
 --
+-- Contraintes pour la table `sous_categories`
+--
+ALTER TABLE `sous_categories`
+  ADD CONSTRAINT `fk_souscat_cat` FOREIGN KEY (`categorie_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE;
+
+--
 -- Contraintes pour la table `produits`
 --
 ALTER TABLE `produits`
-  ADD CONSTRAINT `produits_ibfk_1` FOREIGN KEY (`categorie_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_produit_souscat` FOREIGN KEY (`sous_categorie_id`) REFERENCES `sous_categories` (`id`) ON DELETE CASCADE;
 
 COMMIT;
 
