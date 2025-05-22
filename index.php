@@ -1,11 +1,16 @@
 <?php
 session_start();
 
-// Database connection variables
-$servername = "sql203.byethost24.com";
-$username = "b24_38999878";
-$password = "stv0kg7d";
-$dbname = "b24_38999878_woodcaffe";
+// // Database connection variables
+// $servername = "sql203.byethost24.com";
+// $username = "b24_38999878";
+// $password = "stv0kg7d";
+// $dbname = "b24_38999878_woodcaffe";
+
+$servername = "localhost"; // Serveur local avec XAMPP
+$username = "root";        // Utilisateur par défaut de MySQL dans XAMPP
+$password = "";            // Mot de passe par défaut (vide) ou celui que vous avez défini
+$dbname = "woodcaffe";     // Nom de la base de données locale
 
 // Gestion de la connexion admin
 $loginError = '';
@@ -22,10 +27,11 @@ if (isset($_POST['admin_login'])) {
         $stmt->execute();
         $admin = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        // Debugging: Log input and database password (remove in production)
-        error_log("Input code: '$code', DB password: '" . ($admin['password'] ?? 'not found') . "'");
+        // Debugging: Log input (mais pas le mot de passe en clair)
+        error_log("Tentative de connexion admin");
 
-        if ($admin && $code === $admin['password']) {
+        // Vérifier le mot de passe haché avec password_verify()
+        if ($admin && password_verify($code, $admin['password'])) {
             $_SESSION['admin'] = true;
             header("Location: admin.php");
             exit();
@@ -465,6 +471,7 @@ $produits = $produitsStmt->fetchAll(PDO::FETCH_ASSOC);
             <p class="uppercase">Welcome to</p>
             <h1>
                 Wood Kafee
+                
                 <div class="clock">
                     <div>
                         <span id="hours">00</span>

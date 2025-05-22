@@ -14,10 +14,14 @@ if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true) {
     exit();
 }
 
-$servername = "sql203.byethost24.com";
-$username = "b24_38999878";
-$password = "stv0kg7d";
-$dbname = "b24_38999878_woodcaffe";
+// $servername = "sql203.byethost24.com";
+// $username = "b24_38999878";
+// $password = "stv0kg7d";
+// $dbname = "b24_38999878_woodcaffe";
+$servername = "localhost"; // Serveur local avec XAMPP
+$username = "root";        // Utilisateur par défaut de MySQL dans XAMPP
+$password = "";            // Mot de passe par défaut (vide) ou celui que vous avez défini
+$dbname = "woodcaffe";     // Nom de la base de données locale
 
 try {
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
@@ -38,8 +42,12 @@ if (isset($_POST['change_password'])) {
     $new_password = trim($_POST['new_password']);
     if (!empty($new_password)) {
         try {
+            // Hachage du mot de passe avec l'algorithme PASSWORD_BCRYPT
+            $hashed_password = password_hash($new_password, PASSWORD_BCRYPT, ['cost' => 12]);
+            
             $stmt = $conn->prepare("UPDATE admin SET password = ? WHERE id = 1");
-            $result = $stmt->execute([$new_password]);
+            $result = $stmt->execute([$hashed_password]);
+            
             if ($result && $stmt->rowCount() > 0) {
                 $password_change_message = "Mot de passe modifié avec succès.";
             } else {
@@ -47,6 +55,7 @@ if (isset($_POST['change_password'])) {
             }
         } catch (PDOException $e) {
             $password_change_message = "Erreur lors de la mise à jour : " . $e->getMessage();
+            error_log("Erreur de mise à jour du mot de passe : " . $e->getMessage());
         }
     } else {
         $password_change_message = "Le mot de passe ne peut pas être vide.";
